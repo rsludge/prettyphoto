@@ -192,10 +192,7 @@
 
 			_checkPosition($(pp_images).size()); // Hide the next/previous links if on first or last images.
 		
-			$('.pp_loaderIcon').show();
-		
-			if(settings.deeplinking)
-				setHashtag();
+			$('.pp_loaderIcon').show();	
 		
 			// Rebuild Facebook Like Button with updated href
 			if(settings.social_tools){
