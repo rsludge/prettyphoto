@@ -26,7 +26,6 @@
 			wmode: 'opaque', /* Set the flash wmode attribute */
 			autoplay: true, /* Automatically start videos: True/False */
 			modal: false, /* If set to true, only the close button will close the window */
-			deeplinking: true, /* Allow prettyPhoto to update the url to enable deeplinking. */
 			overlay_gallery: true, /* If set to true, a gallery will overlay the fullscreen image on mouse over */
 			keyboard_shortcuts: true, /* Set to false if you open forms inside prettyPhoto */
 			changepicturecallback: function(){}, /* Called everytime an item is shown/changed */
@@ -472,8 +471,6 @@
 				
 				$(window).unbind('scroll.prettyphoto');
 				
-				clearHashtag();
-				
 				settings.callback();
 				
 				doresize = true;
@@ -852,42 +849,10 @@
 			
 			_center_overlay(); // Center it
 		}
-
-		if(!pp_alreadyInitialized && getHashtag()){
-			pp_alreadyInitialized = true;
-			
-			// Grab the rel index to trigger the click on the correct element
-			hashIndex = getHashtag();
-			hashRel = hashIndex;
-			hashIndex = hashIndex.substring(hashIndex.indexOf('/')+1,hashIndex.length-1);
-			hashRel = hashRel.substring(0,hashRel.indexOf('/'));
-
-			// Little timeout to make sure all the prettyPhoto initialize scripts has been run.
-			// Useful in the event the page contain several init scripts.
-			setTimeout(function(){ $("a[rel^='"+hashRel+"']:eq("+hashIndex+")").trigger('click'); },50);
-		}
 		
 		return this.unbind('click.prettyphoto').bind('click.prettyphoto',$.prettyPhoto.initialize); // Return the jQuery object for chaining. The unbind method is used to avoid click conflict when the plugin is called more than once
 	};
-	
-	function getHashtag(){
-		url = location.href;
-		hashtag = (url.indexOf('#!') != -1) ? decodeURI(url.substring(url.indexOf('#!')+2,url.length)) : false;
-		return hashtag;
-	};
-	
-	function setHashtag(){
-		if(typeof theRel == 'undefined') return; // theRel is set on normal calls, it's impossible to deeplink using the API
-		location.hash = '!' + theRel + '/'+rel_index+'/';
-	};
-	
-	function clearHashtag(){
-		// Clear the hashtag only if it was set by prettyPhoto
-		url = location.href;
-		hashtag = (url.indexOf('#!prettyPhoto')) ? true : false;
-		if(hashtag) location.hash = "";
-	}
-	
+
 	function getParam(name,url){
 	  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
 	  var regexS = "[\\?&]"+name+"=([^&#]*)";
@@ -897,5 +862,3 @@
 	}
 	
 })(jQuery);
-
-var pp_alreadyInitialized = false; // Used for the deep linking to make sure not to call the same function several times.
