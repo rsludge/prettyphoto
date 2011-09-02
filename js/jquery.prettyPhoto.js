@@ -6,7 +6,9 @@
 ------------------------------------------------------------------------- */
 (function($) {
 	$.prettyPhoto = {version: '3.1.3'};
-	
+
+    var $pp_gallery, pp_images, pp_titles, pp_descriptions, set_position, rel_index, settings, facebook_like_link;
+
 	$.fn.prettyPhoto = function(pp_settings) {
 		pp_settings = jQuery.extend({
 			animation_speed: 'fast', /* fast/slow/normal */
@@ -101,26 +103,26 @@
 		// Global elements
 		pp_slideshow;
 		
-		doresize = true, scroll_pos = _get_scroll();
-	
+		var doresize = true, scroll_pos = _get_scroll();
+        var theRel, isSet;
 		// Window/Keyboard events
 		$(window).unbind('resize.prettyphoto').bind('resize.prettyphoto',function(){ _center_overlay(); _resize_overlay(); });
-		
+
 		if(pp_settings.keyboard_shortcuts) {
 			$(document).unbind('keydown.prettyphoto').bind('keydown.prettyphoto',function(e){
 				if(typeof $pp_pic_holder != 'undefined'){
 					if($pp_pic_holder.is(':visible')){
 						switch(e.keyCode){
-							case 37:
+							case 37:    //left
 								$.prettyPhoto.changePage('previous');
 								e.preventDefault();
 								break;
-							case 39:
+							case 39:   //right
 								$.prettyPhoto.changePage('next');
 								e.preventDefault();
 								break;
-							case 27:
-								if(!settings.modal)
+							case 27:   //esc
+								if(!pp_settings.modal)
 								$.prettyPhoto.close();
 								e.preventDefault();
 								break;
@@ -143,14 +145,14 @@
 			
 			// Find out if the picture is part of a set
 			theRel = $(this).attr('rel');
-			galleryRegExp = /\[(?:.*)\]/;
+			var galleryRegExp = /\[(?:.*)\]/;
 			isSet = (galleryRegExp.exec(theRel)) ? true : false;
 			
 			// Put the SRCs, TITLEs, ALTs into an array.
 			pp_images = (isSet) ? jQuery.map(matchedObjects, function(n, i){ if($(n).attr('rel').indexOf(theRel) != -1) return $(n).attr('href'); }) : $.makeArray($(this).attr('href'));
 			pp_titles = (isSet) ? jQuery.map(matchedObjects, function(n, i){ if($(n).attr('rel').indexOf(theRel) != -1) return ($(n).find('img').attr('alt')) ? $(n).find('img').attr('alt') : ""; }) : $.makeArray($(this).find('img').attr('alt'));
 			pp_descriptions = (isSet) ? jQuery.map(matchedObjects, function(n, i){ if($(n).attr('rel').indexOf(theRel) != -1) return ($(n).attr('title')) ? $(n).attr('title') : ""; }) : $.makeArray($(this).attr('title'));
-			
+
 			if(pp_images.length > 30) settings.overlay_gallery = false;
 			
 			set_position = jQuery.inArray($(this).attr('href'), pp_images); // Define where in the array the clicked item is positionned
@@ -166,7 +168,6 @@
 			
 			return false;
 		}
-
 
 		/**
 		* Opens the prettyPhoto modal box.
@@ -196,7 +197,7 @@
 		
 			// Rebuild Facebook Like Button with updated href
 			if(settings.social_tools){
-				facebook_like_link = settings.social_tools.replace('{location_href}', encodeURIComponent(location.href)); 
+				facebook_like_link = settings.social_tools.replace('{location_href}', encodeURIComponent(location.href));
 				$pp_pic_holder.find('.pp_social').html(facebook_like_link);
 			}
 			
@@ -213,11 +214,11 @@
 			}else{
 				$pp_pic_holder.find('.pp_description').hide();
 			}
-			
+
 			// Get the dimensions
 			movie_width = ( parseFloat(getParam('width',pp_images[set_position])) ) ? getParam('width',pp_images[set_position]) : settings.default_width.toString();
 			movie_height = ( parseFloat(getParam('height',pp_images[set_position])) ) ? getParam('height',pp_images[set_position]) : settings.default_height.toString();
-			
+
 			// If the size is % based, calculate according to window dimensions
 			percentBased=false;
 			if(movie_height.indexOf('%') != -1) { movie_height = parseFloat(($(window).height() * parseFloat(movie_height) / 100) - 150); percentBased = true; }
@@ -735,7 +736,7 @@
 				// $pp_gallery.hide();
 			}
 		}
-	
+
 		function _build_overlay(caller){
 			// Inject Social Tool markup into General markup
 			facebook_like_link = settings.social_tools.replace('{location_href}', encodeURIComponent(location.href)); 
@@ -744,7 +745,7 @@
 			$('body').append(settings.markup); // Inject the markup
 			
 			$pp_pic_holder = $('.pp_pic_holder') , $ppt = $('.ppt'), $pp_overlay = $('div.pp_overlay'); // Set my global selectors
-			
+
 			// Inject the inline gallery!
 			if(isSet && settings.overlay_gallery) {
 				currentGalleryPage = 0;
@@ -850,7 +851,7 @@
 			});
 			
 			_center_overlay(); // Center it
-		};
+		}
 
 		if(!pp_alreadyInitialized && getHashtag()){
 			pp_alreadyInitialized = true;
